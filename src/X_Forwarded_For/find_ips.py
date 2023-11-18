@@ -1,12 +1,10 @@
-import iptools
 import argparse
-import requests
-
-from pip._internal.network import session
-from tqdm import tqdm
-from itertools import zip_longest
 from concurrent.futures import ThreadPoolExecutor
+from itertools import zip_longest
+
+import iptools
 from requests_futures.sessions import FuturesSession
+from tqdm import tqdm
 
 
 def parse_args():
@@ -36,7 +34,10 @@ def http_status(url, ip_list):
         headers=http_headers,
     )
     response = future.result()
-    #print(response.headers)
+    with open('log.txt', 'a') as f:
+        output = str(response.headers).replace(',', '\n')
+        f.write(output)
+        f.write("\n" + "-"*150 + "\n")
     if response.status_code != 403:
         return "1", ip_list
     else:

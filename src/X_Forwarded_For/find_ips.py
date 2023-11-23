@@ -5,6 +5,7 @@ from itertools import zip_longest
 import iptools
 from requests_futures.sessions import FuturesSession
 from tqdm import tqdm
+import socket
 
 
 def parse_args():
@@ -27,6 +28,8 @@ def http_status(url, ip_list):
         "Cache-Control": "no-cache, must-revalidate",
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0",
         "X-Forwarded-For": ip_list,
+        "X-Forwarded-Host": url,
+        "X-Host": url,
     }
     session = FuturesSession(executor=ThreadPoolExecutor(max_workers=args.workers))
     future = session.get(
@@ -36,13 +39,20 @@ def http_status(url, ip_list):
     response = future.result()
     with open('log.txt', 'a') as f:
         output = str(response.headers).replace(',', '\n')
-        f.write(output)
-        f.write("\n" + "-"*150 + "\n")
+        f.write("X_FORWARDED_FOR\n\n" + output)
+        f.write("\n" + "-"*170 + "\n")
     if response.status_code != 403:
         return "1", ip_list
     else:
         return "0", "0"
 
+def http_hosts(url):
+    sub_url = url.replace('http://', '')
+    print(sub_url)
+    original_ip = socket.gethostbyname(sub_url)
+    with open('log.txt', 'a') as f:
+        f.write("X_FORWARDED_HOST\n\n" "Original IP address: "+ original_ip + "\n" + url)
+        f.write("\n" + "-"*170 + "\n")
 
 def generate_ips(ip_range):
     try:
@@ -64,7 +74,11 @@ if __name__ == "__main__":
     print("IP address count in range:", len(ip_addresses))
     print("Iterations required:", int(-(-len(ip_addresses) // 10)), "\n")
 
-    for ips in tqdm(zip_longest(*[iter(ip_addresses)] * 10, fillvalue="")):
+    full = f"args.url"
+
+    http_hosts(args.url)
+
+    for ips in tqdm(zip_longest(*[iter(ip_addresses)] , fillvalue="")):
         ip_list = ", ".join(filter(None, ips))
         (result, ip_list) = http_status(args.url, ip_list)
         if result == "1":

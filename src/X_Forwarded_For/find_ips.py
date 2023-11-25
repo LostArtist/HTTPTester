@@ -3,9 +3,16 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import zip_longest
 
 import iptools
+import requests
 from requests_futures.sessions import FuturesSession
 from tqdm import tqdm
 import socket
+
+#http_proxy = "192.167.0.1:2000"
+#http_proxy = "127.0.0.1:2805"
+proxies = {
+    'http': "192.167.0.1:2000",
+}
 
 
 def parse_args():
@@ -35,11 +42,13 @@ def http_status(url, ip_list):
     future = session.get(
         url=url,
         headers=http_headers,
+        proxies=proxies
     )
+
     response = future.result()
     with open('log.txt', 'a') as f:
         output = str(response.headers).replace(',', '\n')
-        f.write("X_FORWARDED_FOR\n\n" + output)
+        f.write("X_FORWARDED_FOR\n\n" + output + "\n")
         f.write("\n" + "-"*170 + "\n")
     if response.status_code != 403:
         return "1", ip_list
@@ -51,7 +60,7 @@ def http_hosts(url):
     print(sub_url)
     original_ip = socket.gethostbyname(sub_url)
     with open('log.txt', 'a') as f:
-        f.write("X_FORWARDED_HOST\n\n" "Original IP address: "+ original_ip + "\n" + url)
+        f.write("X_FORWARDED_HOST\n\n" "Original IP address: "+ original_ip + "\n" + url + "\n")
         f.write("\n" + "-"*170 + "\n")
 
 def generate_ips(ip_range):

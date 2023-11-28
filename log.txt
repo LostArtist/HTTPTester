@@ -1,0 +1,36 @@
+X_FORWARDED_HOST
+
+Original IP address: 147.229.2.90
+Original Host: http://www.vutbr.cz
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Wrong proxy has been used: HTTPConnectionPool(host='192.168.196.30', port=80): Max retries exceeded with url: http://www.vutbr.cz/ (Caused by ProxyError('Unable to connect to proxy', ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x00000180306FEB90>, 'Connection to 192.168.196.30 timed out. (connect timeout=None)')))X_FORWARDED_FOR
+
+{'Server': 'nginx'
+ 'Date': 'Tue
+ 28 Nov 2023 22:16:55 GMT'
+ 'Content-Type': 'text/html; charset=utf-8'
+ 'Content-Length': '12096'
+ 'Connection': 'keep-alive'
+ 'Set-Cookie': 'nosec_sess=8SOvMauCHb; expires=Thu
+ 27-Nov-2025 22:16:55 GMT; Max-Age=63072000; path=/; secure; HttpOnly
+ PHPSESSID=9l7s1naevvdcku5t1q3cpet02r; path=/; secure; HttpOnly
+ _nss=1; path=/; secure; HttpOnly; SameSite=Strict
+ logo_displayed=1; expires=Wed
+ 29-Nov-2023 03:16:55 GMT; Max-Age=18000; path=/; domain=www.vut.cz; secure; HttpOnly'
+ 'Expires': 'Mon
+ 01 Jun 1980 00:00:00 GMT'
+ 'Cache-Control': 'no-cache
+ must-revalidate'
+ 'Pragma': 'no-cache'
+ 'X-Powered-By': 'IS VUT; www.vut.cz/cvis'
+ 'X-Frame-Options': 'ALLOW-FROM https://www.vut.cz
+ SAMEORIGIN'
+ 'Last-Modified': 'Tue
+ 28 Nov 2023 22:16:55GMT'
+ 'Vary': 'Accept-Encoding'
+ 'Content-Encoding': 'gzip'
+ 'X-Content-Type-Options': 'nosniff'
+ 'X-XSS-Protection': '1; mode=block'
+ 'Content-Security-Policy': "default-src * data: blob: filesystem: about: ws: wss: 'unsafe-inline' 'unsafe-eval' 'unsafe-dynamic'; script-src * data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src * data: blob: 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src * data: blob: ; style-src * data: blob: 'unsafe-inline';font-src * data: blob: 'unsafe-inline'; frame-ancestors * data: blob: 'unsafe-inline';"
+ 'Strict-Transport-Security': 'max-age=31536000'}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------

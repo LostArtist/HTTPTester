@@ -1,3 +1,5 @@
+from flask import Flask, request
+import requests
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from itertools import zip_longest
@@ -7,6 +9,25 @@ from requests_futures.sessions import FuturesSession
 from tqdm import tqdm
 import socket
 
+app = Flask(__name__)
+
+@app.route('/', methods=['POST'])
+def get_headers(url, proxy):
+    data = request.get_json()
+    url = data.get(url)
+    proxy = data.get(proxy)
+
+    try:
+        response = requests.get(url, proxies={"http": proxy, "https": proxy})
+        print(response.content)
+        x_forwarded_for = response.headers.get('X-Forwarded-For')
+        x_forwarded_host = response.headers.get('X-Forwarded-Host')
+        with open('log.txt', 'a') as f:
+            f.write("X_FORWARDED_FOR\n\n" + x_forwarded_host + "\n" + x_forwarded_for)
+            f.write("\n" + "-" * 170 + "\n")
+        return {'X-Forwarded-For': x_forwarded_for, 'X-Forwarded-Host': x_forwarded_host}
+    except Exception as e:
+        return {'error': str(e)}
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -20,6 +41,8 @@ def parse_args():
     )
     parser.add_argument("-w", "--workers",
                         help="Worker/thread count - default is 100", default=100)
+    parser.add_argument("-p", dest="proxy",
+                        help="proxy ip address", required=True)
     return parser.parse_args()
 
 
@@ -63,8 +86,26 @@ def generate_ips(ip_range):
         ip_end = ip_range.split("-")[1]
         return iptools.IpRange(ip_start, ip_end)
 
+def define(proxy):
+    try:
+        url = 'http://www.vutbr.cz'
 
-if __name__ == "__main__":
+        proxies = {
+            'http': str(proxy),
+            'https': str(proxy),
+        }
+
+        response = requests.get(url, proxies=proxies)
+
+        print('X-Forwarded-For:', response.headers.get('X-Forwarded-For'))
+        print('X-Forwarded-Host:', response.headers.get('X-Forwarded-Host'))
+    except Exception as ex:
+        with open('log.txt', 'a') as f:
+            f.write("Wrong proxy has been used: " + str(ex))
+
+if __name__ == '__main__':
+
+    app.run(host='0.0.0.0', port=80)
 
     args = parse_args()
 
@@ -75,10 +116,11 @@ if __name__ == "__main__":
     print("Iterations required:", int(-(-len(ip_addresses) // 10)), "\n")
 
     full = f"args.url"
+    url = args.url
+    http_hosts(url)
+    define(args.proxy)
 
-    http_hosts(args.url)
-
-    for ips in tqdm(zip_longest(*[iter(ip_addresses)] , fillvalue="")):
+    for ips in tqdm(zip_longest(*[iter(ip_addresses)], fillvalue="")):
         ip_list = ", ".join(filter(None, ips))
         (result, ip_list) = http_status(args.url, ip_list)
         if result == "1":
